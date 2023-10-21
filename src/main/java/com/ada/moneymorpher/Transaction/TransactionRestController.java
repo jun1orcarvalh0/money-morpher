@@ -3,10 +3,9 @@ package com.ada.moneymorpher.Transaction;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/transaction")
@@ -22,7 +21,12 @@ public class TransactionRestController {
 
     @PostMapping
     public TransactionResponse create(@RequestBody TransactionRequest request){
-        TransactionDto response = this.service.cadastrar(request);
+        TransactionDto response = this.service.create(request);
         return this.convertReponse(response);
+    }
+
+    @GetMapping(params = {"currency"})
+    public List<TransactionList> listTransactions (@RequestParam CurrencyTypeEnum currency){
+        return this.service.listTransactions(currency);
     }
 }
