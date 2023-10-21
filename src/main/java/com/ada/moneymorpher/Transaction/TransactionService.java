@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -56,5 +57,22 @@ public class TransactionService {
         return transactionList.stream()
                 .map((transaction -> convertList(transaction,currency)))
                 .toList();
+    }
+
+    public BigDecimal listBalance(CurrencyTypeEnum currency){
+        BigDecimal balance;
+
+        if(currency.equals(CurrencyTypeEnum.USD)){
+            balance = this.repository.getUSDBalance();
+        } else if (currency.equals(CurrencyTypeEnum.EUR)){
+            balance = this.repository.getEURBalance();
+        } else {
+            balance = this.repository.getBRLBalance();
+        }
+
+        if(balance == null){
+            balance = new BigDecimal(0);
+        }
+        return balance;
     }
 }

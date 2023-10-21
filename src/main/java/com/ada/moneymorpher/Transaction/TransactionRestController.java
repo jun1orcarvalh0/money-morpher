@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -28,5 +29,10 @@ public class TransactionRestController {
     @GetMapping(params = {"currency"})
     public List<TransactionList> listTransactions (@RequestParam CurrencyTypeEnum currency){
         return this.service.listTransactions(currency);
+    }
+
+    @GetMapping("/balance")
+    public BigDecimal listBalance(@RequestParam CurrencyTypeEnum currency){
+        return this.service.listBalance(currency);
     }
 }
