@@ -89,4 +89,10 @@ public class TransactionService {
         Transaction updated = this.repository.save(transaction);
         return this.convertDto(updated);
     }
+
+    public void delete(UUID uuid){
+        Transaction transaction = this.repository.findByUuid(uuid)
+                .orElseThrow(()-> new NotFoundException("Transaction not found"));
+        this.repository.delete(transaction);
+    }
 }

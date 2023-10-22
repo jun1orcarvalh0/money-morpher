@@ -50,4 +50,9 @@ public class TransactionRestController {
         TransactionDto updated = this.service.update(uuid, request.getDescription());
         return this.convertReponse(updated);
     }
+
+    @DeleteMapping("/{uuid}")
+    public void delete(@PathVariable UUID uuid){
+        this.service.delete(uuid);
+    }
 }
