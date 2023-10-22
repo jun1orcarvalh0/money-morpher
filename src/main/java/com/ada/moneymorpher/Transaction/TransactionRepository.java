@@ -6,18 +6,22 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    public List<Transaction> findAllByOrderByCreatedAtDesc();
+    List<Transaction> findAllByOrderByCreatedAtDesc();
 
     @Query("select sum(case when t.transactionType = 'CASHIN' then t.BRLValue else -t.BRLValue end) from Transaction t")
-    public BigDecimal getBRLBalance();
+    BigDecimal getBRLBalance();
 
     @Query("select sum(case when t.transactionType = 'CASHIN' then t.USDValue else -t.USDValue end) from Transaction t")
-    public BigDecimal getUSDBalance();
+    BigDecimal getUSDBalance();
 
     @Query("select sum(case when t.transactionType = 'CASHIN' then t.EURValue else -t.EURValue end) from Transaction t")
-    public BigDecimal getEURBalance();
+    BigDecimal getEURBalance();
+
+    Optional<Transaction> findByUuid(UUID uuid);
 }

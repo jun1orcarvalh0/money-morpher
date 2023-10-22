@@ -1,6 +1,7 @@
 package com.ada.moneymorpher.Transaction;
 
 
+import com.ada.moneymorpher.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -74,5 +76,17 @@ public class TransactionService {
             balance = new BigDecimal(0);
         }
         return balance;
+    }
+
+    public Optional<TransactionDto> listDetails (UUID uuid){
+        return this.repository.findByUuid(uuid).map(this::convertDto);
+    }
+
+    public TransactionDto update(UUID uuid, String description){
+        Transaction transaction = this.repository.findByUuid(uuid)
+                .orElseThrow(()-> new NotFoundException("Transaction not found"));
+        transaction.setDescription(description);
+        Transaction updated = this.repository.save(transaction);
+        return this.convertDto(updated);
     }
 }
