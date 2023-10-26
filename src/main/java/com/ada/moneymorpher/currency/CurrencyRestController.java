@@ -15,8 +15,7 @@ public class CurrencyRestController {
 
     private final CurrencyService service;
     private final ModelMapper modelMapper;
-
-    @ResponseStatus(HttpStatus.CREATED)
+    
     @PostMapping
     public CurrencyResponse create(CurrencyRequest request){
         CurrencyDto response = this.service.create(request);
