@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/transaction")
+@RequestMapping("/transactions")
 @RequiredArgsConstructor
 public class TransactionRestController {
 
@@ -25,7 +25,6 @@ public class TransactionRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole(T(com/ada/moneymorpher/profile/Role).CLIENT.name())")
     public TransactionResponse create(@RequestBody TransactionRequest request, Principal principal){
         TransactionDto response = this.service.create(request, principal.getName());
         return this.convertReponse(response);

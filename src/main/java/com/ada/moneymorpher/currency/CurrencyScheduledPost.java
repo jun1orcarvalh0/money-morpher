@@ -18,7 +18,7 @@ public class CurrencyScheduledPost {
     private final CurrencyExchangeRestRepository externalService;
     private final CurrencyRepository repository;
 
-    @Scheduled(fixedRate = 120000)
+    @Scheduled(fixedRate = 12000)
     public void currencyScheduledPost() throws JsonProcessingException {
         String json = externalService.getExchangesRate();
 

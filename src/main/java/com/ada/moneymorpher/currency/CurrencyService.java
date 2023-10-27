@@ -25,7 +25,9 @@ public class CurrencyService {
         currency.setEurValue(request.getEurValue());
         currency.setUsdValue(request.getUsdValue());
         currency.setCreatedAt(LocalDateTime.now());
-//
+
+        System.out.println(currency.getUsdValue());
+
         final var saved = this.repository.save(currency);
         return this.convertDto(saved);
     }
