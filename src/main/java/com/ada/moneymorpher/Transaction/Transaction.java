@@ -1,5 +1,6 @@
 package com.ada.moneymorpher.Transaction;
 
+import com.ada.moneymorpher.profile.Profile;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,4 +27,9 @@ public class Transaction {
     private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     private TransactionTypeEnum transactionType;
+
+    @ManyToOne
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
 }
