@@ -4,9 +4,11 @@ package com.ada.moneymorpher.Transaction;
 import com.ada.moneymorpher.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,8 +25,9 @@ public class TransactionRestController {
     }
 
     @PostMapping
-    public TransactionResponse create(@RequestBody TransactionRequest request){
-        TransactionDto response = this.service.create(request);
+    @PreAuthorize("hasRole(T(com/ada/moneymorpher/profile/Role).CLIENT.name())")
+    public TransactionResponse create(@RequestBody TransactionRequest request, Principal principal){
+        TransactionDto response = this.service.create(request, principal.getName());
         return this.convertReponse(response);
     }
 

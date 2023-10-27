@@ -4,6 +4,7 @@ package com.ada.moneymorpher.Transaction;
 import com.ada.moneymorpher.currency.Currency;
 import com.ada.moneymorpher.currency.CurrencyRepository;
 import com.ada.moneymorpher.exceptions.NotFoundException;
+import com.ada.moneymorpher.profile.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class TransactionService {
 
     private final TransactionRepository repository;
     private final CurrencyRepository currencyRepository;
+    private final ProfileService profileService;
     private final ModelMapper modelMapper;
 
     private TransactionDto convertDto(Transaction transaction){
@@ -44,7 +46,7 @@ public class TransactionService {
     }
 
 
-    public TransactionDto create(TransactionRequest request){
+    public TransactionDto create(TransactionRequest request, String username){
         Transaction transaction = new Transaction();
         transaction.setUuid(UUID.randomUUID());
         transaction.setDescription(request.getDescription());
@@ -60,6 +62,9 @@ public class TransactionService {
 
         transaction.setEURValue(EURValue);
         transaction.setUSDValue(USDValue);
+
+        final var profile = this.profileService.getByUsernameEntity(username);
+        transaction.setProfile(profile);
 
         final var saved = this.repository.save(transaction);
         return this.convertDto(saved);
