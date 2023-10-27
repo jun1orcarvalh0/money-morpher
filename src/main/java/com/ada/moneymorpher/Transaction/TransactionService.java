@@ -1,6 +1,8 @@
 package com.ada.moneymorpher.Transaction;
 
 
+import com.ada.moneymorpher.currency.Currency;
+import com.ada.moneymorpher.currency.CurrencyRepository;
 import com.ada.moneymorpher.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class TransactionService {
 
     private final TransactionRepository repository;
+    private final CurrencyRepository currencyRepository;
     private final ModelMapper modelMapper;
 
     private TransactionDto convertDto(Transaction transaction){
@@ -48,6 +51,15 @@ public class TransactionService {
         transaction.setTransactionType(request.getTransactionType());
         transaction.setBRLValue(request.getBRLValue());
         transaction.setCreatedAt(LocalDateTime.now());
+
+        Currency exchange = this.currencyRepository.findFirstByOrderByCreatedAtDesc()
+                .orElseThrow(() -> new NotFoundException("Exchange rates not found"));
+
+        BigDecimal EURValue = request.getBRLValue().multiply(exchange.getEurValue());
+        BigDecimal USDValue = request.getBRLValue().multiply(exchange.getUsdValue());
+
+        transaction.setEURValue(EURValue);
+        transaction.setUSDValue(USDValue);
 
         final var saved = this.repository.save(transaction);
         return this.convertDto(saved);
