@@ -4,8 +4,8 @@ import com.ada.moneymorpher.client.CurrencyExchangeRestRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,13 +13,13 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class CurrencyPostOnSetup {
+public class CurrencyScheduledPost {
 
     private final CurrencyExchangeRestRepository externalService;
     private final CurrencyRepository repository;
 
-    @PostConstruct
-    public void setupPost() throws JsonProcessingException {
+    @Scheduled(fixedRate = 120000)
+    public void currencyScheduledPost() throws JsonProcessingException {
         String json = externalService.getExchangesRate();
 
         ObjectMapper objectMapper = new ObjectMapper();
