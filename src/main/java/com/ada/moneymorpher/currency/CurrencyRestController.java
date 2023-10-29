@@ -3,6 +3,7 @@ package com.ada.moneymorpher.currency;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Currency;
@@ -17,6 +18,7 @@ public class CurrencyRestController {
     private final ModelMapper modelMapper;
     
     @PostMapping
+    @PreAuthorize("hasRole(T(com.ada.moneymorpher.profile.Role).ADMIN.name())")
     public CurrencyResponse create(@RequestBody CurrencyRequest request){
         System.out.println(request);
         CurrencyDto response = this.service.create(request);
