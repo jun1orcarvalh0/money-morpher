@@ -1,17 +1,18 @@
 package com.ada.moneymorpher.Transaction;
 
 
-import com.ada.moneymorpher.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/transaction")
+@RequestMapping("/transactions")
 @RequiredArgsConstructor
 public class TransactionRestController {
 
@@ -23,36 +24,43 @@ public class TransactionRestController {
     }
 
     @PostMapping
-    public TransactionResponse create(@RequestBody TransactionRequest request){
-        TransactionDto response = this.service.create(request);
+    public TransactionResponse create(@RequestBody TransactionRequest request, Principal principal){
+        TransactionDto response = this.service.create(request, principal.getName());
         return this.convertReponse(response);
     }
 
-    @GetMapping(params = {"currency"})
-    public List<TransactionList> listTransactions (@RequestParam CurrencyTypeEnum currency){
-        return this.service.listTransactions(currency);
+    @GetMapping
+    public List<TransactionList> listTransactions (@RequestParam CurrencyTypeEnum currency, Principal principal){
+        return this.service.listTransactions(currency, principal.getName());
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole(T(com.ada.moneymorpher.profile.Role).ADMIN.name())")
+    public List<TransactionList> listAllTransactions (@RequestParam CurrencyTypeEnum currency){
+        return this.service.listAllTransactions(currency);
+    }
+
+
     @GetMapping("/balance")
-    public BigDecimal listBalance(@RequestParam CurrencyTypeEnum currency){
-        return this.service.listBalance(currency);
+    public BigDecimal listBalance(@RequestParam CurrencyTypeEnum currency, Principal principal){
+        return this.service.listBalance(currency, principal.getName());
     }
 
     @GetMapping("/{uuid}")
-    public TransactionResponse listDetails(@PathVariable UUID uuid){
-        return this.service.listDetails(uuid)
-                .map(this::convertReponse)
-                .orElseThrow(()-> new NotFoundException("Transaction not found"));
+    public TransactionResponse listDetails(@PathVariable UUID uuid, Principal principal){
+        TransactionDto transaction = this.service.listDetails(uuid, principal.getName());
+
+        return this.convertReponse(transaction);
     }
 
     @PutMapping("/{uuid}")
-    public TransactionResponse update(@PathVariable UUID uuid, @RequestBody TransactionUpdate request){
-        TransactionDto updated = this.service.update(uuid, request.getDescription());
+    public TransactionResponse update(@PathVariable UUID uuid, @RequestBody TransactionUpdate request, Principal principal){
+        TransactionDto updated = this.service.update(uuid, request.getDescription(), principal.getName());
         return this.convertReponse(updated);
     }
 
     @DeleteMapping("/{uuid}")
-    public void delete(@PathVariable UUID uuid){
-        this.service.delete(uuid);
+    public void delete(@PathVariable UUID uuid, Principal principal){
+        this.service.delete(uuid, principal.getName());
     }
 }
