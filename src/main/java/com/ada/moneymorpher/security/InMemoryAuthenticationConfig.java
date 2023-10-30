@@ -17,11 +17,11 @@ public class InMemoryAuthenticationConfig {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(User.withUsername("user")
                 .password(bCryptPasswordEncoder.encode("userPass"))
-                .roles("USER")
+                .roles("CLIENT")
                 .build());
         manager.createUser(User.withUsername("admin")
                 .password(bCryptPasswordEncoder.encode("adminPass"))
-                .roles("USER", "ADMIN")
+                .roles("CLIENT", "ADMIN")
                 .build());
         return manager;
     }

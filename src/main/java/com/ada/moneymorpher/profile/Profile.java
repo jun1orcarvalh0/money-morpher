@@ -27,6 +27,7 @@ public class Profile implements UserDetails {
     @Column(unique = true)
     private String username;
     private String password;
+    @Enumerated(EnumType.STRING)
     private Role role;
     private boolean active;
     private boolean accountExpired;
