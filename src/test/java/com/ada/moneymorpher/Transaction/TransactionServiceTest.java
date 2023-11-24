@@ -1,8 +1,11 @@
 package com.ada.moneymorpher.Transaction;
 
+import com.ada.moneymorpher.currency.Currency;
+import com.ada.moneymorpher.currency.CurrencyRepository;
 import com.ada.moneymorpher.exceptions.ForbiddenException;
 import com.ada.moneymorpher.exceptions.NotFoundException;
 import com.ada.moneymorpher.profile.Profile;
+import com.ada.moneymorpher.profile.ProfileService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +29,73 @@ public class TransactionServiceTest {
     @Mock
     TransactionRepository transactionRepository;
 
+    @Mock
+    CurrencyRepository currencyRepository;
+
+    @Mock
+    ProfileService profileService;
+
     @Spy
     ModelMapper modelMapper;
+
+    @Test
+    public void shouldReturnTransaction_whenTransactionSuccessfullyCreated() {
+        TransactionRequest request = new TransactionRequest();
+        request.setDescription("Transação Teste");
+        request.setTransactionType(TransactionTypeEnum.CASHIN);
+        request.setBRLValue(BigDecimal.valueOf(25));
+
+        Currency currency = new Currency();
+        currency.setEurValue(BigDecimal.valueOf(0.18));
+        currency.setUsdValue(BigDecimal.valueOf(0.2));
+
+        BigDecimal EURValue = request.getBRLValue().multiply(currency.getEurValue());
+        BigDecimal USDValue = request.getBRLValue().multiply(currency.getUsdValue());
+
+        Mockito.when(currencyRepository.findFirstByOrderByCreatedAtDesc())
+                .thenReturn(Optional.of(currency));
+
+        String username = "userTest";
+
+        Profile profile = new Profile();
+        profile.setUsername(username);
+        Mockito.when(profileService.getByUsernameEntity(username)).thenReturn(profile);
+
+        Transaction savedTransaction = new Transaction();
+        savedTransaction.setProfile(profile);
+        savedTransaction.setUuid(UUID.randomUUID());
+        savedTransaction.setDescription(request.getDescription());
+        savedTransaction.setBRLValue(request.getBRLValue());
+        savedTransaction.setUSDValue(USDValue);
+        savedTransaction.setEURValue(EURValue);
+        savedTransaction.setTransactionType(request.getTransactionType());
+
+//        Mockito.doReturn(savedTransaction).when(transactionRepository).save(Mockito.any(Transaction.class));
+        Mockito.when(transactionRepository.save(Mockito.any(Transaction.class))).thenReturn(savedTransaction);
+
+        TransactionDto result = transactionService.create(request, username);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getUuid());
+        Assertions.assertEquals(request.getDescription(), result.getDescription());
+        Assertions.assertEquals(request.getTransactionType(), result.getTransactionType());
+        Assertions.assertEquals(request.getBRLValue(), BigDecimal.valueOf(25));
+    }
+
+    @Test
+    public void shouldReturnNotFoundError_whenThereAreNotExchangeRatesInDb(){
+        String username = "userTest";
+        TransactionRequest request = new TransactionRequest();
+        request.setDescription("Test Transaction");
+        request.setTransactionType(TransactionTypeEnum.CASHIN);
+        request.setBRLValue(BigDecimal.valueOf(25));
+
+        NotFoundException exception = Assertions.assertThrows(
+                NotFoundException.class,
+                ()-> transactionService.create(request, username)
+        );
+        Assertions.assertEquals("Exchange rates not found", exception.getMessage());
+    }
 
     @Test
     public void shouldReturnZeroBalance_whenNoTransactionsMade(){
